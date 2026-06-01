@@ -24,16 +24,17 @@ use**. Currently available:
 For example, the folder `domains/addictedto.beer/` means you can register
 `anything.addictedto.beer`.
 
-### 2. Add your file
+### 2. Add your folder
 
-[Fork this repo](../../fork) and create a new file at:
+[Fork this repo](../../fork) and create a **folder for your subdomain**, with an
+`@.json` file inside it:
 
 ```
-domains/<domain>/<your-subdomain>.json
+domains/<domain>/<your-subdomain>/@.json
 ```
 
 Example — to register **`myname.addictedto.beer`**, create
-`domains/addictedto.beer/myname.json`:
+`domains/addictedto.beer/myname/@.json`:
 
 ```json
 {
@@ -46,9 +47,17 @@ Example — to register **`myname.addictedto.beer`**, create
 }
 ```
 
-> Note: The file name becomes your subdomain. `myname.json` → `myname.addictedto.beer`.
-> The `owner.github` field **must be your own GitHub username** — that's what
-> lets you (and only you) edit it later.
+> Note: The folder name becomes your subdomain, and `@.json` is the entry for the
+> subdomain itself (`@` is DNS shorthand for "this name"). The `owner.github`
+> field **must be your own GitHub username** — that's what lets you (and only
+> you) edit it later.
+>
+> Folders named `@` or `*` are **rejected** (the apex of the main domain and
+> wildcards are reserved).
+
+**Want nested subdomains?** Add more files in the same folder. For example,
+`domains/addictedto.beer/myname/blog.json` creates `blog.myname.addictedto.beer`.
+The `@.json` always defines who owns the whole folder.
 
 ### 3. Open a pull request
 
@@ -95,11 +104,12 @@ Netlify, a server IP, …) at it and you're online.
 
 | Rule | Why |
 | --- | --- |
-| File path is `domains/<domain>/<subdomain>.json` | Tells the bot which subdomain you want |
-| Subdomain is lowercase `a-z 0-9 -` (dots allowed for nesting) | Valid DNS names |
+| Path is `domains/<domain>/<subdomain>/@.json` | Folder = subdomain, `@.json` = the subdomain itself |
+| Folder name is lowercase `a-z 0-9 -` | Valid DNS label |
+| Folders named `@` or `*` are rejected | Apex and wildcards are reserved |
+| `@.json` must contain an `owner.github` | Anchors who owns the folder |
 | At least one record under `records` | A subdomain has to point somewhere |
 | `CNAME` cannot be combined with other record types | DNS spec |
-| `owner.github` is your username | Used for the ownership check |
 | Names like `www`, `api`, `mail`, `ns1` … are reserved | Infrastructure protection |
 
 ---
@@ -115,7 +125,7 @@ This is fully automated by the workflow in
 3. **Validation** — the JSON structure, subdomain name and record types are
    checked.
 4. **Ownership** — when a PR **edits or deletes an existing** subdomain, the PR
-   author must match the `owner.github` in the file that's already on `main`.
+   author must match the `owner.github` in that folder's `@.json` on `main`.
    - You own it → allowed to edit / delete.
    - You don't → the PR is **closed automatically** with an explanation.
 5. A maintainer does the final merge for new entries.
@@ -127,9 +137,9 @@ their own subdomain.
 
 ## Editing or removing your subdomain
 
-- **Edit:** open a PR changing your existing `domains/<domain>/<subdomain>.json`.
-  As long as `owner.github` is you, it's accepted.
-- **Remove:** open a PR deleting your file.
+- **Edit:** open a PR changing files in your `domains/<domain>/<subdomain>/` folder.
+  As long as the folder's `@.json` lists you as `owner.github`, it's accepted.
+- **Remove:** open a PR deleting your folder (or individual files in it).
 
 ---
 

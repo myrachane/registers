@@ -5,11 +5,16 @@ name *is* the domain.
 
 ```
 domains/
-├── addictedto.beer/    ← available domain
-│   └── myname.json     ← myname.addictedto.beer
-└── skillissue.gg/      ← available domain
+├── addictedto.beer/        ← available domain
+│   └── myname/             ← subdomain folder
+│       ├── @.json          ← myname.addictedto.beer
+│       └── blog.json       ← blog.myname.addictedto.beer (nested, optional)
+└── skillissue.gg/          ← available domain
     └── ...
 ```
+
+Folders named `@` or `*` are rejected by the validation workflow (apex and
+wildcards are reserved).
 
 ## For maintainers: adding a new domain
 
