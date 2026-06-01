@@ -161,45 +161,9 @@ subdomain removed.
 ## For maintainers
 
 - **Add a domain:** create a folder `domains/<the-domain>/` (see
-  [`domains/README.md`](./domains/README.md)), add the domain → `productId`
-  entry to the `SKRIME_PRODUCTS` secret, and delegate the domain to skrime.eu.
+  [`domains/README.md`](./domains/README.md)).
 - **Validation logic** lives in
   [`.github/scripts/validate-pr.js`](./.github/scripts/validate-pr.js).
-
-### Deploying DNS (skrime.eu)
-
-Merging a PR only updates the JSON in this repo. The
-[`Deploy DNS`](./.github/workflows/deploy.yml) workflow then publishes the
-records to the [skrime.eu DNS API](https://skrime.eu) on every push to `main`
-(and via manual *Run workflow*).
-
-Because the skrime API **replaces the entire zone** on each update, this repo is
-the single source of truth: the deploy script collects every record from every
-subdomain folder and submits the complete set per domain.
-
-Set this up once:
-
-**Secrets** — under *Settings → Secrets and variables → Actions*, add:
-
-- `SKRIME_API_URL` → the zone endpoint, e.g. `https://skrime.eu/api/dns/zone`
-- `SKRIME_API_KEY` → your API token (sent as `Authorization: Bearer <key>`)
-- `SKRIME_PRODUCTS` → a JSON object mapping each domain to its skrime `productId`:
-  ```json
-  {"addictedto.beer":"your-product-id","skillissue.gg":"your-product-id"}
-  ```
-
-The list of domains comes from the folders under [`domains/`](./domains); any
-domain missing from `SKRIME_PRODUCTS` is skipped.
-
-How a record file maps to the zone:
-
-| File | Record `name` sent to skrime |
-| --- | --- |
-| `domains/<d>/myname/@.json` | `myname` |
-| `domains/<d>/myname/blog.json` | `blog.myname` |
-
-The deploy script is
-[`.github/scripts/deploy.js`](./.github/scripts/deploy.js).
 
 ---
 
