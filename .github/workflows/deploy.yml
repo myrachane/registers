@@ -1,0 +1,36 @@
+name: Deploy DNS
+
+# After a change lands on main, push every domain's records to the skrime.eu
+# DNS API. The API replaces the whole zone, so we always submit the full set.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "domains/**"
+      - "zones.json"
+      - ".github/scripts/deploy.js"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+# Never run two deploys at the same time.
+concurrency:
+  group: deploy-dns
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Push DNS records to skrime.eu
+        run: node .github/scripts/deploy.js
+        env:
+          SKRIME_API_URL: ${{ secrets.SKRIME_API_URL }}
+          SKRIME_API_KEY: ${{ secrets.SKRIME_API_KEY }}

@@ -2,19 +2,20 @@
 
 ## Subdomain
 
-- Full subdomain: `<subdomain>.<domain>` (e.g. `myname.example.com`)
-- File added/changed: `domains/<domain>/<subdomain>.json`
+- Full subdomain: `<subdomain>.<domain>` (e.g. `myname.addictedto.beer`)
+- Folder/file added/changed: `domains/<domain>/<subdomain>/@.json`
 
 ## Type of change
 
-- [ ] 🆕 New subdomain registration
-- [ ] ✏️ Editing a subdomain I already own
-- [ ] 🗑️ Removing a subdomain I own
+- [ ] New subdomain registration
+- [ ] Editing a subdomain I already own
+- [ ] Removing a subdomain I own
 
 ## Checklist
 
-- [ ] The file lives at `domains/<domain>/<subdomain>.json`
-- [ ] `owner.github` is **my** GitHub username
+- [ ] My subdomain lives in its own folder: `domains/<domain>/<subdomain>/@.json`
+- [ ] The folder is **not** named `@` or `*`
+- [ ] `owner.github` in `@.json` is **my** GitHub username
 - [ ] There is at least one DNS record under `records`
 - [ ] I'm only changing files inside `domains/`
 

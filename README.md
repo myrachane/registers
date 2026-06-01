@@ -24,16 +24,17 @@ use**. Currently available:
 For example, the folder `domains/addictedto.beer/` means you can register
 `anything.addictedto.beer`.
 
-### 2. Add your file
+### 2. Add your folder
 
-[Fork this repo](../../fork) and create a new file at:
+[Fork this repo](../../fork) and create a **folder for your subdomain**, with an
+`@.json` file inside it:
 
 ```
-domains/<domain>/<your-subdomain>.json
+domains/<domain>/<your-subdomain>/@.json
 ```
 
 Example — to register **`myname.addictedto.beer`**, create
-`domains/addictedto.beer/myname.json`:
+`domains/addictedto.beer/myname/@.json`:
 
 ```json
 {
@@ -46,9 +47,17 @@ Example — to register **`myname.addictedto.beer`**, create
 }
 ```
 
-> Note: The file name becomes your subdomain. `myname.json` → `myname.addictedto.beer`.
-> The `owner.github` field **must be your own GitHub username** — that's what
-> lets you (and only you) edit it later.
+> Note: The folder name becomes your subdomain, and `@.json` is the entry for the
+> subdomain itself (`@` is DNS shorthand for "this name"). The `owner.github`
+> field **must be your own GitHub username** — that's what lets you (and only
+> you) edit it later.
+>
+> Folders named `@` or `*` are **rejected** (the apex of the main domain and
+> wildcards are reserved).
+
+**Want nested subdomains?** Add more files in the same folder. For example,
+`domains/addictedto.beer/myname/blog.json` creates `blog.myname.addictedto.beer`.
+The `@.json` always defines who owns the whole folder.
 
 ### 3. Open a pull request
 
@@ -95,11 +104,12 @@ Netlify, a server IP, …) at it and you're online.
 
 | Rule | Why |
 | --- | --- |
-| File path is `domains/<domain>/<subdomain>.json` | Tells the bot which subdomain you want |
-| Subdomain is lowercase `a-z 0-9 -` (dots allowed for nesting) | Valid DNS names |
+| Path is `domains/<domain>/<subdomain>/@.json` | Folder = subdomain, `@.json` = the subdomain itself |
+| Folder name is lowercase `a-z 0-9 -` | Valid DNS label |
+| Folders named `@` or `*` are rejected | Apex and wildcards are reserved |
+| `@.json` must contain an `owner.github` | Anchors who owns the folder |
 | At least one record under `records` | A subdomain has to point somewhere |
 | `CNAME` cannot be combined with other record types | DNS spec |
-| `owner.github` is your username | Used for the ownership check |
 | Names like `www`, `api`, `mail`, `ns1` … are reserved | Infrastructure protection |
 
 ---
@@ -115,7 +125,7 @@ This is fully automated by the workflow in
 3. **Validation** — the JSON structure, subdomain name and record types are
    checked.
 4. **Ownership** — when a PR **edits or deletes an existing** subdomain, the PR
-   author must match the `owner.github` in the file that's already on `main`.
+   author must match the `owner.github` in that folder's `@.json` on `main`.
    - You own it → allowed to edit / delete.
    - You don't → the PR is **closed automatically** with an explanation.
 5. A maintainer does the final merge for new entries.
@@ -127,9 +137,9 @@ their own subdomain.
 
 ## Editing or removing your subdomain
 
-- **Edit:** open a PR changing your existing `domains/<domain>/<subdomain>.json`.
-  As long as `owner.github` is you, it's accepted.
-- **Remove:** open a PR deleting your file.
+- **Edit:** open a PR changing files in your `domains/<domain>/<subdomain>/` folder.
+  As long as the folder's `@.json` lists you as `owner.github`, it's accepted.
+- **Remove:** open a PR deleting your folder (or individual files in it).
 
 ---
 
@@ -151,16 +161,45 @@ subdomain removed.
 ## For maintainers
 
 - **Add a domain:** create a folder `domains/<the-domain>/` (see
-  [`domains/README.md`](./domains/README.md)) and delegate the domain to your DNS
-  provider.
-- **Apply records after merge:** merging only updates the JSON in this repo. To
-  actually publish DNS you need a small deploy step that reads the files and
-  pushes them to a DNS provider (e.g. Cloudflare API) on every push to `main`.
-  That deploy step is intentionally left out here because it needs your provider
-  credentials — add it as a separate workflow with your `CLOUDFLARE_API_TOKEN`
-  (or similar) secret.
+  [`domains/README.md`](./domains/README.md)), add the domain → `productId`
+  mapping to [`zones.json`](./zones.json), and delegate the domain to skrime.eu.
 - **Validation logic** lives in
   [`.github/scripts/validate-pr.js`](./.github/scripts/validate-pr.js).
+
+### Deploying DNS (skrime.eu)
+
+Merging a PR only updates the JSON in this repo. The
+[`Deploy DNS`](./.github/workflows/deploy.yml) workflow then publishes the
+records to the [skrime.eu DNS API](https://skrime.eu) on every push to `main`
+(and via manual *Run workflow*).
+
+Because the skrime API **replaces the entire zone** on each update, this repo is
+the single source of truth: the deploy script collects every record from every
+subdomain folder and submits the complete set per domain.
+
+Set this up once:
+
+1. **Secrets** — under *Settings → Secrets and variables → Actions*, add:
+   - `SKRIME_API_URL` → the zone endpoint, e.g. `https://skrime.eu/api/dns/zone`
+   - `SKRIME_API_KEY` → your API token (sent as `Authorization: Bearer <key>`)
+2. **`zones.json`** — map each domain to its skrime `productId`:
+   ```json
+   {
+     "addictedto.beer": "your-product-id",
+     "skillissue.gg": "your-product-id"
+   }
+   ```
+   Domains whose `productId` is still the `XXXX…` placeholder are skipped.
+
+How a record file maps to the zone:
+
+| File | Record `name` sent to skrime |
+| --- | --- |
+| `domains/<d>/myname/@.json` | `myname` |
+| `domains/<d>/myname/blog.json` | `blog.myname` |
+
+The deploy script is
+[`.github/scripts/deploy.js`](./.github/scripts/deploy.js).
 
 ---
 
