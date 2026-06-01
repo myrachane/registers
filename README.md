@@ -14,8 +14,16 @@ No account, no payment, no dashboard. Just one small JSON file.
 ### 1. Pick a domain
 
 Look in the [`domains/`](./domains) folder — **each folder is a domain you can
-use**. For example, the folder `domains/example.com/` means you can register
-`anything.example.com`.
+use**. Currently available:
+
+| Domain | Example |
+| --- | --- |
+| `addictedto.beer` | `myname.addictedto.beer` |
+| `skillissue.gg` | `myname.skillissue.gg` |
+| `hasno.fitness` | `myname.hasno.fitness` |
+
+For example, the folder `domains/addictedto.beer/` means you can register
+`anything.addictedto.beer`.
 
 ### 2. Add your file
 
@@ -25,8 +33,8 @@ use**. For example, the folder `domains/example.com/` means you can register
 domains/<domain>/<your-subdomain>.json
 ```
 
-Example — to register **`myname.example.com`**, create
-`domains/example.com/myname.json`:
+Example — to register **`myname.addictedto.beer`**, create
+`domains/addictedto.beer/myname.json`:
 
 ```json
 {
@@ -39,7 +47,7 @@ Example — to register **`myname.example.com`**, create
 }
 ```
 
-> Note: The file name becomes your subdomain. `myname.json` → `myname.example.com`.
+> Note: The file name becomes your subdomain. `myname.json` → `myname.addictedto.beer`.
 > The `owner.github` field **must be your own GitHub username** — that's what
 > lets you (and only you) edit it later.
 
